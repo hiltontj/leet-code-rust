@@ -4,7 +4,9 @@
 /// divides them both.
 pub fn gcd_of_strings(s1: &str, s2: &str) -> String {
     // TODO - make loop index non-linear
-    for i in (1..s1.len().min(s2.len()) + 1).rev() {
+    let end = s1.len().min(s2.len());
+    println!("end: {end}");
+    for i in DivisorRange::new(end).rev() {
         let (left, _) = s1.split_at(i);
         println!("left: {left}");
         if left.divides(s2) && left.divides(s1) {
@@ -17,6 +19,47 @@ pub fn gcd_of_strings(s1: &str, s2: &str) -> String {
         }
     }
     Default::default()
+}
+
+#[derive(Debug)]
+struct DivisorRange {
+    number: usize,
+    current: usize,
+}
+
+impl DivisorRange {
+    fn new(number: usize) -> Self {
+        Self { number, current: 1 }
+    }
+}
+
+impl Iterator for DivisorRange {
+    type Item = usize;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let v = self.current;
+        while self.current <= self.number {
+            self.current += 1;
+            if self.number % self.current == 0 || v == 1 {
+                return Some(v);
+            }
+        }
+        None
+    }
+}
+
+impl DoubleEndedIterator for DivisorRange {
+    fn next_back(&mut self) -> Option<Self::Item> {
+        println!("next_back: {self:?}");
+        let v = self.number / self.current;
+        while self.current <= self.number {
+            self.current += 1;
+            if self.number % self.current == 0 || v == 1 {
+                return Some(v);
+            }
+        }
+        None
+    }
 }
 
 trait Divisor<Rhs = Self> {
@@ -63,5 +106,17 @@ mod tests {
         let s2 = "CODE";
         // More idiomatic to return None, but in this case this is what leet code wants:
         assert_eq!(gcd_of_strings(s1, s2), "");
+    }
+
+    #[test]
+    fn case_1() {
+        let s1 = "TAUXXTAUXXTAUXXTAUXXTAUXX";
+        let s2 = "TAUXXTAUXXTAUXXTAUXXTAUXXTAUXXTAUXXTAUXXTAUXX";
+        assert_eq!(gcd_of_strings(s1, s2), "TAUXX");
+    }
+
+    #[test]
+    fn case_2() {
+        assert_eq!(gcd_of_strings("AA", "A"), "A");
     }
 }
