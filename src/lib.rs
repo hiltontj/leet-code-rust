@@ -6,3 +6,4 @@ pub mod merge_strings_alternately;
 pub mod product_of_array_except_self;
 pub mod reverse_vowels_of_a_string;
 pub mod reverse_words_in_a_string;
+pub mod string_compression;
